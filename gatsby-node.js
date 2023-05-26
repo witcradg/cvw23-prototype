@@ -25,6 +25,10 @@ exports.createPages = async gatsbyUtilities => {
 
   // And a paginated archive
   await createBlogPostArchive({ posts, gatsbyUtilities })
+
+  const pages = await getPages(gatsbyUtilities)
+
+  await createIndividualWpPages({ pages, gatsbyUtilities })
 }
 
 /**
@@ -159,3 +163,44 @@ async function getPosts({ graphql, reporter }) {
 
   return graphqlResult.data.allWpPost.edges
 }
+
+async function getPages({ graphql, reporter }) {
+    const graphqlResult = await graphql(/* GraphQL */ `
+      query WpPages {
+        allWpPage {
+          edges {
+            page: node {
+              id
+              uri
+            }
+          }
+        }
+      }
+    `)
+  
+    if (graphqlResult.errors) {
+      reporter.panicOnBuild(
+        `There was an error loading your wordpress pages`,
+        graphqlResult.errors
+      )
+      return
+    }
+  
+    return graphqlResult.data.allWpPage.edges
+  }
+
+  //todo create wordpress pages
+  const createIndividualWpPages = async ({ pages, gatsbyUtilities }) =>
+  Promise.all(
+    pages.map(({ page }) =>
+      // createPage is an action passed to createPages
+      // See https://www.gatsbyjs.com/docs/actions#createPage for more info
+      gatsbyUtilities.actions.createPage({
+        path: page.uri,
+        component: path.resolve(`./src/templates/wp-page.js`),
+        context: {
+          id: page.id
+        },
+      })
+    )
+  )

@@ -23,9 +23,9 @@ const BlogPostTemplate = ({ data: { previous, next, post } }) => {
 
   const image = getImage(featuredImage.data)
 
-  console.log('featuredImage: ', featuredImage)
+//   console.log('featuredImage: ', featuredImage)
   
-  console.log('image: ', image)
+//   console.log('image: ', image)
 
   return (
     <Layout>
